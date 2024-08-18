@@ -22,9 +22,8 @@ type Option struct {
 }
 
 func Init(option ...Option) error {
-
 	dir, err := os.Getwd()
-	if err == nil {
+	if err != nil {
 		return err
 	}
 	workingDirectory = strings.ReplaceAll(fmt.Sprintf("%s/", dir), `\`, `/`)
