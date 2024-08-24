@@ -10,7 +10,8 @@ import (
 
 type contextHandler struct {
 	slog.Handler
-	keys []string
+	keyList   []string
+	addSource bool
 }
 
 func (h contextHandler) Handle(ctx context.Context, r slog.Record) error {
@@ -19,15 +20,17 @@ func (h contextHandler) Handle(ctx context.Context, r slog.Record) error {
 }
 
 func (h contextHandler) observe(ctx context.Context) (as []slog.Attr) {
-	_, file, line, _ := runtime.Caller(4)
-	codePath := strings.TrimPrefix(fmt.Sprintf("%s:%d", file, line), workingDirectory)
+	if h.addSource {
+		_, file, line, _ := runtime.Caller(4)
+		codePath := strings.TrimPrefix(fmt.Sprintf("%s:%d", file, line), workingDirectory)
 
-	as = append(as, slog.Attr{
-		Key:   "source",
-		Value: slog.StringValue(codePath),
-	})
+		as = append(as, slog.Attr{
+			Key:   "source",
+			Value: slog.StringValue(codePath),
+		})
+	}
 
-	for _, k := range h.keys {
+	for _, k := range h.keyList {
 		v := ctx.Value(k)
 
 		switch k {

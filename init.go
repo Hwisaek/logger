@@ -16,6 +16,7 @@ var (
 	timeFormat        = "2006-01-02T15:04:05.000-07:00"
 	workingDirectory  = ""
 	level             = slog.LevelDebug
+	addSource         = false
 )
 
 const (
@@ -29,6 +30,7 @@ type Option struct {
 	TimeFormat        *string
 	WorkingDirectory  *string
 	Level             *slog.Level
+	AddSource         bool
 }
 
 func Init(option ...Option) error {
@@ -55,24 +57,25 @@ func Init(option ...Option) error {
 		if opt.Level != nil {
 			level = *opt.Level
 		}
+		addSource = opt.AddSource
 	}
 
-	h := contextHandler{
-		slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
-			Level: level,
-			ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
-				if a.Key == slog.TimeKey {
-					// Convert the time to custom format
-					a.Value = slog.StringValue(a.Value.Time().Format(timeFormat))
-				}
-				return a
-			},
-		}),
-		[]string{
-			contextKeyTraceId,
-			contextKeySpanId,
+	var h contextHandler
+	h.Handler = slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level: level,
+		ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
+			if a.Key == slog.TimeKey {
+				// Convert the time to custom format
+				a.Value = slog.StringValue(a.Value.Time().Format(timeFormat))
+			}
+			return a
 		},
+	})
+	h.keyList = []string{
+		contextKeyTraceId,
+		contextKeySpanId,
 	}
+	h.addSource = addSource
 
 	slog.SetDefault(slog.New(h))
 	return nil
