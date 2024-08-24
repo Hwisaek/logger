@@ -1,10 +1,13 @@
 package slogger
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"os"
 	"strings"
+
+	"github.com/google/uuid"
 )
 
 var (
@@ -12,6 +15,11 @@ var (
 	contextKeySpanId  = "span-id"
 	timeFormat        = "2006-01-02T15:04:05.000-07:00"
 	workingDirectory  = ""
+)
+
+const (
+	ContextKeyTraceId = "trace-id"
+	ContextKeySpanId  = "span-id"
 )
 
 type Option struct {
@@ -63,4 +71,16 @@ func Init(option ...Option) error {
 
 	slog.SetDefault(slog.New(h))
 	return nil
+}
+
+func NewContext(oldCtx ...context.Context) (newCtx context.Context) {
+	ctx := context.Background()
+	if len(oldCtx) > 0 {
+		ctx = oldCtx[0]
+	}
+
+	newCtx = context.WithValue(ctx, ContextKeyTraceId, uuid.NewString())
+	newCtx = context.WithValue(ctx, ContextKeySpanId, &[]int{0}[0])
+
+	return newCtx
 }
