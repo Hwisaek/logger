@@ -74,13 +74,13 @@ func Init(option ...Option) error {
 }
 
 func NewContext(oldCtx ...context.Context) (newCtx context.Context) {
-	ctx := context.Background()
+	newCtx = context.Background()
 	if len(oldCtx) > 0 {
-		ctx = oldCtx[0]
+		newCtx = oldCtx[0]
 	}
 
-	newCtx = context.WithValue(ctx, ContextKeyTraceId, uuid.NewString())
-	newCtx = context.WithValue(ctx, ContextKeySpanId, &[]int{0}[0])
+	newCtx = context.WithValue(newCtx, ContextKeyTraceId, uuid.NewString())
+	newCtx = context.WithValue(newCtx, ContextKeySpanId, &[]int{0}[0])
 
 	return newCtx
 }
