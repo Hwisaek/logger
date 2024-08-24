@@ -80,7 +80,7 @@ func NewContext(oldCtx ...context.Context) (newCtx context.Context) {
 	}
 
 	newCtx = context.WithValue(newCtx, ContextKeyTraceId, uuid.NewString())
-	newCtx = context.WithValue(newCtx, ContextKeySpanId, &[]int{0}[0])
+	newCtx = context.WithValue(newCtx, ContextKeySpanId, &[]int{-1}[0])
 
 	return newCtx
 }
