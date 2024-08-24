@@ -15,6 +15,7 @@ var (
 	contextKeySpanId  = "span-id"
 	timeFormat        = "2006-01-02T15:04:05.000-07:00"
 	workingDirectory  = ""
+	level             = slog.LevelDebug
 )
 
 const (
@@ -27,6 +28,7 @@ type Option struct {
 	ContextKeySpanId  *string
 	TimeFormat        *string
 	WorkingDirectory  *string
+	Level             *slog.Level
 }
 
 func Init(option ...Option) error {
@@ -50,11 +52,14 @@ func Init(option ...Option) error {
 		if opt.WorkingDirectory != nil {
 			workingDirectory = *opt.WorkingDirectory
 		}
+		if opt.Level != nil {
+			level = *opt.Level
+		}
 	}
 
 	h := contextHandler{
 		slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
-			Level: slog.LevelDebug,
+			Level: level,
 			ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
 				if a.Key == slog.TimeKey {
 					// Convert the time to custom format
